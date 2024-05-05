@@ -1,6 +1,6 @@
 const Conversation = require('./../models/Conversation');
 const Message = require('./../models/Message');
-
+const { getReceiverSocketId, io } = require('./../socket/socket');
 
 class controller {
     async sendMessage(req, res) {
@@ -28,6 +28,13 @@ class controller {
 
             await Promise.all([conversation.save(), newMessage.save()]);
 
+            // web-socket logics
+
+            const receiverSocketId = getReceiverSocketId(receiverId);
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit('newMessage', newMessage);
+            }
+
             return res.status(201).json(
                 newMessage
             );
@@ -43,9 +50,15 @@ class controller {
             const { id: userToChatId } = req.params;
             const senderId = req.user._id;
 
-            const conversation = await Conversation.findOne({participants: {$all: [senderId, userToChatId]}}).populate("messages");
+            const conversation = await Conversation.findOne({ participants: { $all: [senderId, userToChatId]}}).populate('messages');
 
-            return res.status(201).json(conversation.messages);
+
+            if (!conversation.messages) {
+                return res.status(201).json({
+                    message: 'Начните общение'
+                })
+            }
+                return res.status(201).json(conversation.messages);
 
         } catch (error) {
             console.log(error);

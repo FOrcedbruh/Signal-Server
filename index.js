@@ -6,18 +6,25 @@ const messageRouter = require('./messages/messageRouter');
 const usersRouter = require('./users/usersRouter');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const { app, io, server } = require('./socket/socket');
 
 dotenv.config();
 
-const app = express();
 
+const PORT = process.env.PORT || 8080;
 
-app.use(cors());
+const origin = `http://localhost:3000`;
+
+app.use(cors({
+    credentials: true,
+    origin: origin
+}));
+
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cookieParser());
 
-const PORT = process.env.PORT || 8080;
+
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/messages', messageRouter);
@@ -33,7 +40,7 @@ const db_url = process.env.DB_URL;
 const start = async () => {
     try {
         mongoose.connect(db_url).then(() => console.log('Подключено в базе данных'))
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`Сервер запущен на порту http://localhost:${PORT}`);
         })
     } catch(error) {
