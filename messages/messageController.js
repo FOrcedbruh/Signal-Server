@@ -67,6 +67,29 @@ class controller {
             })
         }
     }
+    async deleteMessage(req, res) {
+        try {
+            const { _id: messageId, senderId, receiverId,  index } = req.body;
+
+            await Message.findByIdAndDelete(messageId);
+
+            const conversation = await Conversation.findOne({participants: { $all: [senderId, receiverId]}});
+
+            conversation.messages.splice(index, 1);
+
+            await conversation.save();
+
+            res.status(201).json({
+                message: 'Сообщение успешно удалено'
+            });
+
+        } catch (error) {
+            console.log(error);
+            return res.status(400).json({
+                message: 'Ошибка на сервере'
+            });
+        }
+    }
 }
 
 
