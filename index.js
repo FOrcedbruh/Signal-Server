@@ -16,7 +16,8 @@ const PORT = process.env.PORT || 8080;
 
 
 app.use(cors({
-    credentials: true
+    credentials: true,
+    origin: "https://signal-nine.vercel.app"
 }));
 
 app.use(express.json());
