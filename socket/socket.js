@@ -10,7 +10,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: ['http://localhost:3000'],
+        origin: ['https://signal-jh169pupo-forcedbruhs-projects.vercel.app'],
         methods: ['GET', 'POST']
     }
 });
